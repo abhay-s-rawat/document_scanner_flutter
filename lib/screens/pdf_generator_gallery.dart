@@ -9,17 +9,26 @@ import 'package:path_provider/path_provider.dart';
 typedef Future<File?>? ScannerFilePicker();
 
 /// @nodoc
-class PdfGeneratotGallery extends StatefulWidget {
+class PdfGeneratorGallery extends StatefulWidget {
   final ScannerFilePicker filePicker;
   final Map<dynamic, String> labelsConfig;
+  final Widget leading;
+  final TextStyle defaultTextStyle;
+  final double toolbarHeight;
 
-  const PdfGeneratotGallery(this.filePicker, this.labelsConfig);
+  const PdfGeneratorGallery(
+    this.filePicker,
+    this.labelsConfig, {
+    required this.leading,
+    required this.defaultTextStyle,
+    this.toolbarHeight = 45,
+  });
 
   @override
-  _PdfGeneratotGalleryState createState() => _PdfGeneratotGalleryState();
+  _PdfGeneratorGalleryState createState() => _PdfGeneratorGalleryState();
 }
 
-class _PdfGeneratotGalleryState extends State<PdfGeneratotGallery> {
+class _PdfGeneratorGalleryState extends State<PdfGeneratorGallery> {
   List<File> files = [];
 
   addImage() async {
@@ -102,13 +111,22 @@ class _PdfGeneratotGalleryState extends State<PdfGeneratotGallery> {
   Widget build(BuildContext context) {
     var appBar = AppBar(
       automaticallyImplyLeading: false,
+      leading: widget.leading,
+      toolbarHeight: widget.toolbarHeight,
       title: Row(
         children: [
-          if (files.isNotEmpty) Text(itemsTitle),
+          if (files.isNotEmpty)
+            Text(
+              itemsTitle,
+              style: widget.defaultTextStyle,
+            ),
           if (files.isEmpty)
-            Text(widget.labelsConfig[
-                    ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE] ??
-                "PDF Pages")
+            Text(
+              widget.labelsConfig[
+                      ScannerLabelsConfig.PDF_GALLERY_EMPTY_TITLE] ??
+                  "PDF Pages",
+              style: widget.defaultTextStyle,
+            )
         ],
       ),
     );
@@ -198,35 +216,38 @@ class _PdfGeneratotGalleryState extends State<PdfGeneratotGallery> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Expanded(
+                    child: _mainControl(context,
+                        color: files.isEmpty
+                            ? Theme.of(context).primaryColor
+                            : Colors.blueGrey[50]!,
+                        icon: Icons.add_a_photo,
+                        textColor: files.isEmpty
+                            ? Colors.white
+                            : Theme.of(context).primaryColor,
+                        title: widget.labelsConfig[ScannerLabelsConfig
+                                .PDF_GALLERY_ADD_IMAGE_LABEL] ??
+                            "Add Image",
+                        onTap: addImage,
+                        radius: files.isEmpty
+                            ? BorderRadius.circular(25)
+                            : BorderRadius.only(
+                                topLeft: Radius.circular(25),
+                                bottomLeft: Radius.circular(25))),
+                  ),
                   if (files.isNotEmpty)
                     Expanded(
                         child: _mainControl(context,
-                            color: Colors.blue,
-                            icon: Icons.check,
+                            color: Theme.of(context).primaryColor,
+                            icon: Icons.send,
                             title: widget.labelsConfig[ScannerLabelsConfig
                                     .PDF_GALLERY_DONE_LABEL] ??
                                 "Done",
                             textColor: Colors.white,
                             onTap: onDone,
                             radius: BorderRadius.only(
-                                topLeft: Radius.circular(25),
-                                bottomLeft: Radius.circular(25)))),
-                  Expanded(
-                      child: _mainControl(context,
-                          color:
-                              files.isEmpty ? Colors.blue : Colors.cyanAccent,
-                          icon: Icons.add_a_photo,
-                          textColor:
-                              files.isEmpty ? Colors.white : Colors.black,
-                          title: widget.labelsConfig[ScannerLabelsConfig
-                                  .PDF_GALLERY_ADD_IMAGE_LABEL] ??
-                              "Add Image",
-                          onTap: addImage,
-                          radius: files.isEmpty
-                              ? BorderRadius.circular(25)
-                              : BorderRadius.only(
-                                  topRight: Radius.circular(25),
-                                  bottomRight: Radius.circular(25)))),
+                                topRight: Radius.circular(25),
+                                bottomRight: Radius.circular(25)))),
                 ],
               ),
             ),
